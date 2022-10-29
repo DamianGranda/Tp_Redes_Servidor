@@ -66,7 +66,7 @@ public:
         string nombreArchivo = "server.log";
         ofstream texto;
 
-        texto.open(nombreArchivo.c_str(),fstream::out);
+        texto.open(nombreArchivo.c_str(),fstream::app);
         texto << endl;
          texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ": Socket creado. Puerto de escucha:5000. " << endl;
          cout << "Escuchando para conexiones entrantes." << endl;
@@ -153,7 +153,7 @@ public:
         string nombreArchivo = "server.log";
         ofstream texto;
 
-        texto.open(nombreArchivo.c_str(),fstream::out);//abrimos el txt
+        texto.open(nombreArchivo.c_str(),fstream::app);//abrimos el txt
 
         closesocket(client);
         cout << "Socket cerrado, cliente desconectado." << endl;
@@ -177,7 +177,7 @@ public:
         string nombreArchivo = "server.log";
         ofstream texto;
 
-        texto.open(nombreArchivo.c_str(),fstream::out);//abrimos el txt
+        texto.open(nombreArchivo.c_str(),fstream::app);//abrimos el txt
 
         closesocket(client);
         cout << "Socket cerrado, cliente desconectado por inactividad." << endl;
