@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1667000046 source:c:\users\usuario\desktop\redes\tp_redes_servidor\main.cpp
+	<iostream>
+	<winsock2.h>
+	<ctime>
+	<string.h>
+	<math.h>
+	<ctype.h>
+	<time.h>
+	<fstream>
+
