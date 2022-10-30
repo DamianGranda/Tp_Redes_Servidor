@@ -1,11 +1,12 @@
 #include <iostream>
 #include <winsock2.h>
-#include <ctime>
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
 #include <fstream>
+
+
 
 using namespace std;
 
@@ -14,7 +15,11 @@ public:
     WSADATA WSAData;
     SOCKET server, client;
     SOCKADDR_IN serverAddr, clientAddr;
-    char buffer[1024];
+    char buffer[1024]=" ";
+    char registro[1024]=" ";
+
+
+
 
     Server(){
         WSAStartup(MAKEWORD(2,0), &WSAData);
@@ -24,380 +29,362 @@ public:
         serverAddr.sin_family = AF_INET;
         serverAddr.sin_port = htons(5000);
 
-       //Declaramos la fecha/hora del dia.
-        time_t now = time(0);
-        tm* time = localtime(&now);
-        int dia = time-> tm_mday;
-        int mes = time-> tm_mon + 1;
-        int anio = 1900 + time-> tm_year;
-        int hora = time-> tm_hour;
-        int minu = time-> tm_min;
+        time_t tiempoahora;
+        time(&tiempoahora);
+        struct tm *mitiempo=localtime(&tiempoahora);
 
+        FILE * puntero;
+        puntero=fopen("Server.log","w");
+        fprintf(puntero,"%d-%d-%d_%d:%d ==========================\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
+        fprintf(puntero,"%d-%d-%d_%d:%d ========INICIO SERVIDOR========\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
+        fprintf(puntero,"%d-%d-%d_%d:%d ==========================\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
 
-        string nombreArchivo = "server.log";
-        ofstream texto;
+        fclose(puntero);
 
-        texto.open(nombreArchivo.c_str(),fstream::out);//abrimos el txt
-
-         texto << endl;
-         texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ": ==================" << endl;
-         texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ":" << ": =======Inicia Servidor======= " << endl;
-         texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ": ==================" << endl;
-
-         texto.close();//cerramos
-
-         ConexionDeSocket();
-
+        Conexion();
     }
+    void Conexion(){
 
-    void ConexionDeSocket(){
+
         bind(server, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
         listen(server, 0);
 
-        time_t now = time(0);
-        tm* time = localtime(&now);
-        int dia = time-> tm_mday;
-        int mes = time-> tm_mon + 1;
-        int anio = 1900 + time-> tm_year;
-        int hora = time-> tm_hour;
-        int minu = time-> tm_min;
+         time_t tiempoahora;
+        time(&tiempoahora);
+        struct tm *mitiempo=localtime(&tiempoahora);
 
 
-        string nombreArchivo = "server.log";
-        ofstream texto;
-
-        texto.open(nombreArchivo.c_str(),fstream::app);
-        texto << endl;
-         texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ": Socket creado. Puerto de escucha:5000. " << endl;
-         cout << "Escuchando para conexiones entrantes." << endl;
+        FILE *puntero;
+        puntero=fopen("server.log","a");
+        fprintf(puntero," %d-%d-%d_%d:%d --Socket Creado.Escuchando para conexiones entrantes.Puerto de escucha:5000\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
+        system("cls");
+        cout << "Escuchando para conexiones entrantes." << endl;
         int clientAddrSize = sizeof(clientAddr);
-        if((client = accept(server, (SOCKADDR *)&clientAddr, &clientAddrSize)) != INVALID_SOCKET){
-            texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ":Conexión Aceptada." << endl;
+        if((client = accept(server, (SOCKADDR *)&clientAddr, &clientAddrSize)) != INVALID_SOCKET)
+        {
+            fprintf(puntero," %d-%d-%d_%d:%d --Conexion aceptada.\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
+            fprintf(puntero,"%d-%d-%d_%d:%d --Cliente conectado!\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
             cout << "Cliente conectado!" << endl;
+
         }
-        texto.close();
-
+        fclose(puntero);
     }
-
-
-
-
     void Recibir(){
       recv(client, buffer, sizeof(buffer), 0);
       cout << "El cliente dice: " << buffer << endl;
-      //string buf=buffer;
-      memset(buffer, 0, sizeof(buffer)); //revisar su no devuelve nulo o resetea y bugea todo
+
     }
-
-
     void Enviar(){
-        int retorno=0;
-        int aux=0;
-        for(int i=0;i<1024;i++){
-            if(buffer[i]=='1'){
-                i=1024;
-            if(aux==-4){ send(client,"algo", sizeof(buffer), 0); }
-            strcpy(buffer,itoa(aux,buffer,10));
-            send(client,buffer, sizeof(buffer), 0);
-            }//1
+        int i=0;
+        float aux=0;
+        int opcion=atoi(buffer);
+        switch(opcion){
+    case 1:{
+        recv(client, buffer, sizeof(buffer), 0);
+                char volver[7]="volver";
+                if(strcmp(buffer,volver)!=0){
+                    aux=calcular();
+                }else{
+                    aux=-4;
+                }
 
-            if(buffer[i]== '2'){
-            i=1024;
-            char auxChar[1024]=" ";
-            FILE *puntero;
-            puntero=fopen("server.log","r");
-            while(!feof(puntero)){
-                fgets(auxChar,1024,puntero);
-                cout<< auxChar<<endl;
-                send(client,auxChar,sizeof(auxChar),0);
-                memset(auxChar, 0, sizeof(auxChar));
+                if(aux==-1){
+                   aux=0;
+                }else if(aux==-2){
+                    aux=0;
+                }else if(aux==-3){
+                    aux=0;
+                 }else if(aux==-4){
+                    send(client,"menu", sizeof(buffer), 0);
+                    memset(buffer, 0, sizeof(buffer));
+                    aux=0;
+                 }else{
 
-            }
+                    strcpy(buffer,itoa(aux,buffer,10));
+                    send(client,buffer, sizeof(buffer), 0);
+                    aux=0;
+
+                 }
+                    break;
+    }
+    case 2:{
+        FILE *puntero;
+                puntero=fopen("server.log","r");
+                while(!feof(puntero)){
+                    fgets(registro,1024,puntero);
+                    cout<< registro<<endl;
+                    send(client,registro,sizeof(registro),0);
+                    memset(registro, 0, sizeof(registro));
+
+                }
 
 
                 fclose(puntero);
+                break;}
+    case 0:{
+        CerrarSocket();
+                cout << "El cliente se desconecto"<< endl;
+                Conexion();
+                break;}
 
-            }//2
+    case 4:{
+        CerrarSocketPorInactividad();
+                cout << "El cliente se desconecto"<< endl;
+                Conexion();
+            break;}
 
-            if(buffer[i]=='4'){
-                i=1024;
-                CerrarSocketPorInactividad();
-                cout << "El cliente se desconecto por inactividad"<< endl;
-                 ConexionDeSocket();
-            }//4
-
-             if(buffer[i]=='0'){
-                 i=1024;
-                 CerrarSocket();
-                 cout << "El cliente se desconecto"<< endl;
-                 ConexionDeSocket();
-             }//0
-        }//for
+        }
 
         memset(buffer, 0, sizeof(buffer));
-
     }
 
-
     void CerrarSocket(){
-        //Declaramos la fecha/hora del dia.
-        time_t now = time(0);
-        tm* time = localtime(&now);
-        int dia = time-> tm_mday;
-        int mes = time-> tm_mon + 1;
-        int anio = 1900 + time-> tm_year;
-        int hora = time-> tm_hour;
-        int minu = time-> tm_min;
+        time_t tiempoahora;
+        time(&tiempoahora);
+        struct tm *mitiempo=localtime(&tiempoahora);
 
-
-        string nombreArchivo = "server.log";
-        ofstream texto;
-
-        texto.open(nombreArchivo.c_str(),fstream::app);//abrimos el txt
-
+        FILE *puntero;
+        puntero=fopen("Server.log","a");
         closesocket(client);
         cout << "Socket cerrado, cliente desconectado." << endl;
-        texto << endl;
-         texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ":Socket cerrado, cliente desconectado." << endl;
-
-        texto.close();//cerramos
+        fprintf(puntero,"%d-%d-%d_%d:%d --Socket cerrado, cliente desconectado.\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
+        fclose(puntero);
     }
 
     void CerrarSocketPorInactividad(){
-     //Declaramos la fecha/hora del dia.
-        time_t now = time(0);
-        tm* time = localtime(&now);
-        int dia = time-> tm_mday;
-        int mes = time-> tm_mon + 1;
-        int anio = 1900 + time-> tm_year;
-        int hora = time-> tm_hour;
-        int minu = time-> tm_min;
-
-
-        string nombreArchivo = "server.log";
-        ofstream texto;
-
-        texto.open(nombreArchivo.c_str(),fstream::app);//abrimos el txt
-
+          time_t tiempoahora;
+        time(&tiempoahora);
+        struct tm *mitiempo=localtime(&tiempoahora);
+        FILE *puntero;
+        puntero=fopen("Server.log","a");
         closesocket(client);
         cout << "Socket cerrado, cliente desconectado por inactividad." << endl;
-        texto << endl;
-         texto << anio <<"-"<< mes <<"-"<< dia <<"_"<< hora <<":"<< minu << ":Conexion Cerrada por Inactividad." << endl;
-
-        texto.close();//cerramos
-
+        fprintf(puntero,"%d-%d-%d_%d:%d --Socket cerrado, cliente desconectado por inactividad.\n",mitiempo->tm_mday,mitiempo->tm_mon+1,mitiempo->tm_year+1900,mitiempo->tm_hour,mitiempo->tm_min);
+        fclose(puntero);
     }
 
-    int calculo(){
-        int a=0;
-        int b=0;
-        char auxPreDig[1024]= " ";
-        char auxPosDig[1024]= " ";
-        char letra[5]=" ";
-        bool esLetra=false;
-        char aux[10]=" ";
-        bool caracterNoDigito= false;
-        int caracter=0;
-        int posicionCaracter=0;
-        int resultado=0;
-        enum opertacion{Suma,Resta,Multiplicacion,Division,Potenciacion,Factorial};
+    float calcular(){
+        enum caracter{Suma=1,Resta,Multiplicacion,Division,Potenciacion,Factorial,Numero};
+        int a;
+        int b;
+        float retorno=0;
+        bool unidad=false;
+        int tipoCaracter;
+        int j=0;
+        int posCaracter;
+        bool caracterInes=false;
+        char caracterInesperado[1024]=" ";
+        bool malFormado=false;
+        char OperacionMalFormada[1024]=" ";
 
-        if(strlen(buffer)>1 && strlen(buffer)<20){ //minimo un caracter maximo 20
+            if(strlen(buffer)>=1 && strlen(buffer)<20){
 
-        for(int i=0;i<strlen(buffer);i++){
-            if(buffer[i]== '+'){
-                caracter=Suma;
-                posicionCaracter=i;
-                if(isdigit(buffer[i+1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    } else if (isdigit(buffer[i-1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    }
+                for(j=0;j<strlen(buffer);j++){
+                        if(buffer[j+1]==' '){
+                            unidad=true;
+                        }
 
-            } else if(buffer[i]== '-'){
-                caracter=Resta;
-                posicionCaracter=i;
-                if(isdigit(buffer[i+1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    } else if (isdigit(buffer[i-1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    }
+                    if(buffer[j]=='+'){
+                        tipoCaracter=Suma;
+                        posCaracter=j;
 
-                }else if(buffer[i]=='*'){
-                caracter=Multiplicacion;
-                posicionCaracter=i;
-                if(isdigit(buffer[i+1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    } else if (isdigit(buffer[i-1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    }
+                        if(!isdigit(buffer[j+1])){
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j];
+                            OperacionMalFormada[1]=buffer[j+1];
+                            OperacionMalFormada[2]=buffer[j+2];
+                        }else if(!isdigit(buffer[j-1])){
+                            malFormado=true;
 
-                }else if(buffer[i]=='/'){
-                caracter=Division;
-                posicionCaracter=i;
-                if(isdigit(buffer[i+1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    } else if (isdigit(buffer[i-1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    }
+                            OperacionMalFormada[1]=buffer[j];
+                            OperacionMalFormada[2]=buffer[j+1];
+                        }
 
-                } else if(buffer[i]=='^'){
-                caracter=Potenciacion;
-                posicionCaracter=i;
-                if(isdigit(buffer[i+1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    } else if (isdigit(buffer[i-1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    }
+                    }else if
+                    (buffer[j]=='-'){
+                        tipoCaracter=Resta;
+                        posCaracter=j;
+                        if(!isdigit(buffer[j+1])){
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j];
+                            OperacionMalFormada[1]=buffer[j+1];
+                            OperacionMalFormada[2]=buffer[j+2];
+
+                        }else if(!isdigit(buffer[j-1])){
+                            malFormado=true;
+
+                            OperacionMalFormada[1]=buffer[j];
+                            OperacionMalFormada[2]=buffer[j+1];
+                        }
+
+                    }else if
+                    (buffer[j]=='*'){
+                        tipoCaracter=Multiplicacion;
+                        posCaracter=j;
+
+                        if(!isdigit(buffer[j+1])){
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j];
+                            OperacionMalFormada[1]=buffer[j+1];
+                            OperacionMalFormada[2]=buffer[j+2];
+                        }else if(!isdigit(buffer[j-1])){
+                            malFormado=true;
+
+                            OperacionMalFormada[1]=buffer[j];
+                            OperacionMalFormada[2]=buffer[j+1];
+                        }
+
+                    }else if
+                    (buffer[j]=='/'){
+                    tipoCaracter=Division;
+                        posCaracter=j;
+
+                        if(!isdigit(buffer[j+1])){
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j];
+                            OperacionMalFormada[1]=buffer[j+1];
+                            OperacionMalFormada[2]=buffer[j+2];
+                        }else if(!isdigit(buffer[j-1])){
+                            malFormado=true;
+                            OperacionMalFormada[1]=buffer[j];
+                            OperacionMalFormada[2]=buffer[j+1];
+                        }
+
+                    }else if
+                    (buffer[j]=='^'){
+                        tipoCaracter=Potenciacion;
+                        posCaracter=j;
+
+                        if(!isdigit(buffer[j+1])){
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j];
+                            OperacionMalFormada[1]=buffer[j+1];
+                            OperacionMalFormada[2]=buffer[j+2];
+                        }else if(!isdigit(buffer[j-1])){
+                            malFormado=true;
+                            OperacionMalFormada[1]=buffer[j];
+                            OperacionMalFormada[2]=buffer[j+1];
+                        }
+
+                    }else if
+                    (buffer[j]=='!'){
+                        if(isdigit(buffer[j-1]) && !isdigit(buffer[j+1])){
+                        tipoCaracter=Factorial;
+                        posCaracter=j;
+                        }else if(!isdigit(buffer[j-1])){
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j];
+                            OperacionMalFormada[1]=buffer[j+1];
+                        }else {
+                            malFormado=true;
+                            OperacionMalFormada[0]=buffer[j-1];
+                            OperacionMalFormada[1]=buffer[j];
+                            OperacionMalFormada[2]=buffer[j+1];
+
+                        }
 
 
-                } else if (buffer[i]=='!'){
-                 caracter=Factorial;
-                posicionCaracter=i;
-                if(isdigit(buffer[i+1])== false){
-                    caracterNoDigito = true;
-                    aux[0]=buffer[i];
-                    aux[1]=buffer[i+1];
-                    aux[2]=buffer[i+2];
-                    }
+                    }else if
+                     (!isdigit(buffer[j])){
+                        posCaracter=j;
+                        caracterInes=true;
+                        caracterInesperado[0]=buffer[j];
 
-                }     //el if de los caracteres
+                     }
 
-            if(isdigit(buffer[i])== false){
-                esLetra=true;
-                posicionCaracter=i;
-                letra[0]=buffer[i];
-            }
-        }
-
-
-        for(int j=0;j<posicionCaracter;j++){
-            if(isdigit(buffer[j])==true){
-                    auxPreDig[j]=buffer[j];
-            }//if
-        }//for
-        if(esLetra == false && caracterNoDigito == false){
-                    a=atoi(auxPreDig);
                 }
-        int r=0;
-        for(r=posicionCaracter+1;r<strlen(buffer);r++){
-           if(isdigit(buffer[r])==true){
-                    auxPosDig[r]=buffer[r];
-            }
 
-        }
-        if(esLetra == false && caracterNoDigito == false){
-                    b=atoi(auxPosDig);
+                if(unidad==true){
+                    tipoCaracter=Numero;
+                }else{
+
+
+                char preOp[1024]=" ";
+                int i=0;
+                for(i=0;i<posCaracter;i++){
+                    if(isdigit(buffer[i])){
+                        preOp[i]=buffer[i];
+                    }
+                }
+                if(caracterInes==false && malFormado==false){
+                    a=atoi(preOp);
                 }
 
 
-                 switch(caracter){
+                int k=0;
+                char aux[1024]=" ";
+                for(k=posCaracter+1;k<strlen(buffer);k++){
+                        if(isdigit(buffer[k])){
+                            aux[k-posCaracter-1]=buffer[k];
+                        }
+                }
+                if(caracterInes==false && malFormado==false){
+                    b=atoi(aux);
+                }
+                }
+
+                if(caracterInes==false && malFormado==false){
+
+                switch(tipoCaracter){
                     case (Suma):
-                        resultado=a+b;
-                        break;
+                        retorno=a+b;break;
                     case(Resta):
-                        resultado=a-b;
-                        break;
+                        retorno=a-b;break;
                     case(Multiplicacion):
-                        resultado=a*b;
-                        break;
+                        retorno=a*b;break;
                     case(Division):
-                        resultado=a/b;
-                        break;
+                        retorno=a/b;break;
                     case(Potenciacion):
-                        resultado=pow(a,b);
-                        break;
+                        retorno=pow(a,b);break;
                     case(Factorial):
-                        resultado=1;
-                        for(int i=1;i<=a;i++){resultado=resultado*i; }
-                        break;
+                        retorno=1;
+                        for(int i=1;i<=a;i++){
+                            retorno=retorno*i;
+                        }break;
+                    case(Numero):
+                        retorno=atoi(buffer);break;
 
                     }
+                }else if(malFormado==true ){
+                    char auxChar2[1024]="No se pudo realizar la operacion,la operacion esta mal formada: ";
+                    strcpy(buffer,auxChar2);
+                    strcat(buffer,OperacionMalFormada);
+                    cout << buffer<< endl;
+                    retorno=-2;
 
-                    if (esLetra == true){
-                        resultado = -1;
-                        char auxChar[1024]="No se pudo realizar la operacion,se encontro un caracter no contemplado:";
-                        strcpy(buffer,auxChar);
-                        strcat(buffer,letra);
-                        send(client,buffer, sizeof(buffer), 0);
-
-                        cout << " Error: "<< buffer << endl;
-                    }
+                    send(client,buffer, sizeof(buffer), 0);
 
 
-                    if (caracterNoDigito == true){
-                        resultado = -2;
-                        char auxChar2[1024]="No se pudo realizar la operacion,la operacion esta mal formada: ";
-                        strcpy(buffer,auxChar2);
-                        strcat(buffer,aux);
-                        send(client,buffer, sizeof(buffer), 0);
+                }else{
 
-                        cout << " Error: "<< buffer << endl;
-                    }
+                    char auxChar[1024]="No se pudo realizar la operacion,se encontro un caracter no contemplado:";
+                    strcpy(buffer,auxChar);
+                    strcat(buffer,caracterInesperado);
+                    cout << buffer <<endl;
+                    retorno=-1;
+                    send(client,buffer, sizeof(buffer), 0);
 
+                }
+            }else{
+                char auxChar3[1024]="La operacion debe tener entre 1 y 20 caracteres.";
+                strcpy(buffer,auxChar3);
+                retorno=-3;
+                send(client,buffer,sizeof(buffer),0);
+            }
 
+            memset(buffer,0,sizeof(buffer));
 
-        }else{
-            resultado= -3;
-           char auxChar3[1024]="La operacion debe tener entre 1 y 20 caracteres.";
-           strcpy(buffer,auxChar3);
-             cout << " Error: "<< buffer << endl;
-            send(client,buffer,sizeof(buffer),0);
+                return retorno;
 
-        }
-
-        if(strcmp(buffer,"volver") == 0){
-            resultado=-4;
-        }
-
-        if(strcmp(buffer,"VOLVER") == 0){
-            resultado=-4;
-        }
-
-
-        return resultado;
     }
 
 
 };
 
 
+int main(){
 
-
-
-int main()
-{
-  Server *Servidor = new Server();
+         Server *Servidor = new Server();
     while(true){
          Servidor->Recibir();
          Servidor->Enviar();

@@ -1,2 +1,12 @@
-
-2022-10-28_20:57: Socket creado. Puerto de escucha:5000. 
+30-10-2022_18:56 ==========================
+30-10-2022_18:56 ========INICIO SERVIDOR========
+30-10-2022_18:56 ==========================
+ 30-10-2022_18:56 --Socket Creado.Escuchando para conexiones entrantes.Puerto de escucha:5000
+ 30-10-2022_18:56 --Conexion aceptada.
+30-10-2022_18:56 --Cliente conectado!
+30-10-2022_18:59 --Socket cerrado, cliente desconectado.
+ 30-10-2022_18:59 --Socket Creado.Escuchando para conexiones entrantes.Puerto de escucha:5000
+ 30-10-2022_18:59 --Conexion aceptada.
+30-10-2022_18:59 --Cliente conectado!
+30-10-2022_19:4 --Socket cerrado, cliente desconectado por inactividad.
+ 30-10-2022_19:4 --Socket Creado.Escuchando para conexiones entrantes.Puerto de escucha:5000

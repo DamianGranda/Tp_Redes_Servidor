@@ -9,3 +9,12 @@
 	<time.h>
 	<fstream>
 
+1667164131 source:c:\users\usuario\documents\github\tp_redes_servidor\tp_redes_servidor\main.cpp
+	<iostream>
+	<winsock2.h>
+	<string.h>
+	<math.h>
+	<ctype.h>
+	<time.h>
+	<fstream>
+
